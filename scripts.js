@@ -18,26 +18,27 @@ function getUserInput() {
     let userInput = $('#dogForm input').val();
     return transformInput(userInput);
 }
-
-function searchUserInput() {
-    let searchTerm = getUserInput();
-
-    for (let i = 0; i > dogsListTest.length; i++) {
-        if (dogsListTest[i] === searchTerm) {
-            return dogList[i]
-        } else {
-            return false;
-        }
-
+function searchUserInput(input) {
+    let searchTerm = input;
+    let termLocation = dogsListTest.indexOf(searchTerm);
+    if (termLocation >= 0) {
+        // console.log('searchUserInput:' + termLocation);
+        return termLocation;
+    } else {
+        return 'none'
     }
 }
-function getDogLink() {
-
-    let doggieURL = 'https://dog.ceo/api/breed/' + key + '/images/random';
+function searchErrorMessage() {
+    $('.dogs').append('<p>I am sorry, we cannot find a match for that search term.</p>');
+}
+function getDogLink(response) {
+    let keyIndex = response;
+    let keyWord = dogsList[keyIndex];
+    let doggieURL = 'https://dog.ceo/api/breed/' + keyWord + '/images/random';
     return doggieURL;
 }
-function getDogImages() {
-    let doggieLink = getDogLink();
+function getDogImages(link) {
+    let doggieLink = link;
     fetch(doggieLink)
         .then(response => response.json())
         .then(responseJSON => showDogImg(responseJSON))
@@ -60,8 +61,15 @@ function watchDogForm() {
     $('form').submit(event => {
         event.preventDefault();
         $('.dogs').empty();
-        getDogLink();
-        // getDogImages();
+        let userInp = getUserInput();
+        let searchResp = searchUserInput(userInp);
+        if (searchResp === 'none') {
+            searchErrorMessage();
+        } else {
+            let url = getDogLink(searchResp);
+            getDogImages(url);
+        }
+
     });
 }
 $(function () {
